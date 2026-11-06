@@ -1,19 +1,17 @@
 # 频段
 
-红米 K50 Ultra（22081212C，高通，已 root）上的测频段工具。打开后自动测当前数据卡能驻留的 5G 和 4G 频段，勾选后可以锁定，也可以一键回到硬件默认。
+已 root 的高通手机上的测频段工具。打开后自动测当前数据卡能驻留的 5G 和 4G 频段，勾选后可以锁定，也可以一键回到硬件默认。
 
-手机上已经装过的包是仓库根目录的 `bandlock.apk`。
+锁频通过高通 QMI NAS 完成，适用于能用这套接口改频段掩码的高通机型。二进制是 `app/src/main/assets/qcom-band-menu`。数据卡按 `gsm.sim.state` 里已加载的卡槽选择。
 
 ## 做什么
 
 - 打开即测。5G 测 n1、n78、n77、n5、n8、n3、n28、n41；4G 测 B1、B3、B5、B8、B34、B38、B39、B40、B41。
-- 每个频段记录是否驻留、RSRP、SINR，能上网时再测一次下行和到 `223.5.5.5` 的延迟。
+- 每个频段记录是否驻留、RSRP、SINR，能上网时再测一次下行和公网往返延迟。
 - 测完后回到测试前的锁定，并勾上 5G、4G 里各自最快的一项，可以改勾选。
 - **锁 5G**：只保留勾选的 NR SA 频段，网络模式设为仅 5G。
 - **锁 4G**：只保留勾选的 LTE 频段，网络模式设为仅 4G。
 - **恢复系统默认**：频段掩码回到调制解调器报告的硬件能力，制式回到 5G/4G/3G/2G 自动。
-
-锁频走高通 QMI，二进制是 `app/src/main/assets/qcom-band-menu`。数据卡按 `gsm.sim.state` 里已加载的卡槽选择。这台机器上是卡槽 2 的中国电信。
 
 ## 编译
 
@@ -32,11 +30,15 @@ export ANDROID_SDK_ROOT="$HOME/Android/Sdk"
 
 ## 安装
 
-这台小米需要用 root 安装，普通 `adb install` 会被系统拦下：
+包名是 `com.xunflash.bandlock`。需要 root，应用通过 `su` 提权，请在 root 管理器里允许它。
+
+```sh
+adb install -r bandlock.apk
+```
+
+若系统拦住普通安装，可以改用 root 安装：
 
 ```sh
 adb push bandlock.apk /data/local/tmp/bandlock.apk
 adb shell su -c 'pm install -r /data/local/tmp/bandlock.apk'
 ```
-
-应用通过 `/system/bin/su` 提权。APatch 的包配置在 `/data/adb/ap/package_config`，允许后才提得到权。包名是 `com.xunflash.bandlock`。
